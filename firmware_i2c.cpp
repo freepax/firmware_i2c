@@ -125,7 +125,7 @@ int Firmware_I2C::readRegister(char reg, char *value)
  */
 int Firmware_I2C::writeRegister(char reg, char *value)
 {
-    char data[2] = { reg, value };
+    char data[2] = { reg, *value };
 
     /// write data to device
     int status = write(mFd, data, 2);
