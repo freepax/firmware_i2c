@@ -29,6 +29,9 @@ public:
     int openDevice();
     int closeDevice();
 
+    int readRegister(char reg, char *value);
+    int writeRegister(char reg, char *value);
+
     int writeData(unsigned char *data, int size);
     int readData(unsigned char *data, int size);
 

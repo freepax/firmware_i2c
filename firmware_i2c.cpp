@@ -77,6 +77,66 @@ int Firmware_I2C::openDevice()
     return 0;
 }
 
+/**
+ * @brief Firmware_I2C::readRegister
+ *
+ * convenient read register function
+ *
+ * @param reg                       register to read
+ * @param value                     whatever we read will end up here
+ * @return                          zero on success, negative error value on failure
+ */
+int Firmware_I2C::readRegister(char reg, char *value)
+{
+    char data[1] = { reg };
+
+    /// set value to zero - by default
+    *value = 0x00;
+
+    /// write register we will read to device
+    int status = write(mFd, data, 2);
+    if (status < 0) {
+        std::cerr << "Firmware_I2C::" << __func__ << ":" << __LINE__ << " write failed " << status << std::endl;
+        return -1;
+    }
+
+    /// clear data buffer
+    memset(data, 0, 1);
+
+    status = read(mFd, data, 1);
+    if (status < 0) {
+        std::cerr << "Firmware_I2C::" << __func__ << ":" << __LINE__ << " read failed " << status << std::endl;
+        return -2;
+    }
+
+    *value = data[0];
+
+    return 0;
+}
+
+/**
+ * @brief Firmware_I2C::writeRegister
+ *
+ * convenient write register function
+ *
+ * @param reg                       register to write
+ * @param value                     value to write to register
+ * @return                          zero on success, negative error value on failure
+ */
+int Firmware_I2C::writeRegister(char reg, char *value)
+{
+    char data[2] = { reg, value };
+
+    /// write data to device
+    int status = write(mFd, data, 2);
+    if (status < 0) {
+        std::cerr << "Firmware_I2C::" << __func__ << ":" << __LINE__ << " write failed " << status << std::endl;
+        return -1;
+    }
+
+    return 0;
+}
+
 
 /**
  * @brief Firmware_I2C::writeData
@@ -113,11 +173,13 @@ int Firmware_I2C::writeData(unsigned char *data, int size)
  */
 int Firmware_I2C::readData(unsigned char *data, int size)
 {
+    memset(data, 0, size);
+
     /// read data from device
     int status = read(mFd, data, size);
     if (status != size) {
         std::cerr << "Firmware_I2C::" << __func__ << ":" << __LINE__ << " read failed " << status << std::endl;
-        return -2;
+        return -1;
     }
 
     return 0;
